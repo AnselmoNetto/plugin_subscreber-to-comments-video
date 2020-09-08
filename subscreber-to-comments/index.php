@@ -4,7 +4,7 @@
  * @version 0.0.1
  */
 /*
-Plugin Name: subscreber 2 comments sem plugin de e-mail smtp
+Plugin Name: subscreber 2 comments
 
 Description: Teste exemplos
 Author: Anselmo Paixao
@@ -20,6 +20,7 @@ Version: 0.0.1
  * define('MAIL_DESTINATARIO'		, "");
  */
 require_once 'semvMail.class.php';
+
 class KDM_Subscriber{
 	static $field_name = 'kdms_subscriber';
 	
@@ -54,15 +55,17 @@ class KDM_Subscriber{
 		}
 	}
 	function notify($comment) {
-		
+		$unsubscribe = '[unsubscribe]';
+		$unsubscribe = str_replace("///", "//localhost/", $unsubscribe);
 		$post_id = $comment->comment_post_ID;
 		$permalink = get_permalink($post_id);
 		$messagem = sprintf(
-					'novo comentario para %.<a href="%s">clique aqui</a> para visualizar.<br>'.
-					'<a href="[unsubscribe]">cancelar notificação</a>',
+				'novo comentario para %.<a href="'.$permalink.'">clique aqui</a> para visualizar.<br>'.
+					'<a href="'.$unsubscribe.'">cancelar notificação</a>',
 					get_the_title($post_id),
 					$permalink
 				);
+		
 		$comments = get_comments(array(
 					'post_id'=> $post_id,
 					'karma' => '1'
@@ -96,14 +99,18 @@ class KDM_Subscriber{
 		}
 	}
 	function subscriber() {
+		
 		$comment_id = isset($_GET['unsubscribe'])?(int)$_GET['unsubscribe']:false;
-		if(is_single() && $comment_id){
+// 		var_dump(is_single() ,$comment_id);die;
+		if( $comment_id){
+			
 			$c = get_comment($comment_id);
 			if($c->comment_karma == '1'){
 				$comment = array(
 							'comment_ID'=> $comment_id,
 							'comment_karma' => '0'
 				);
+				
 				wp_update_comment($comment);
 				
 				$msg =' Cancelamento Confirmado!';
