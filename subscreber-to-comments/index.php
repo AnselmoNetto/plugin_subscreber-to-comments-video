@@ -55,13 +55,12 @@ class KDM_Subscriber{
 		}
 	}
 	function notify($comment) {
-		$unsubscribe = '[unsubscribe]';
-		$unsubscribe = str_replace("///", "//localhost/", $unsubscribe);
+		
 		$post_id = $comment->comment_post_ID;
 		$permalink = get_permalink($post_id);
 		$messagem = sprintf(
-				'novo comentario para %.<a href="'.$permalink.'">clique aqui</a> para visualizar.<br>'.
-					'<a href="'.$unsubscribe.'">cancelar notificação</a>',
+				'novo comentario para %.<a href="%s">clique aqui</a> para visualizar.<br>'.
+					'<a href="[unsubscribe]">cancelar notificação</a>',
 					get_the_title($post_id),
 					$permalink
 				);
