@@ -4,13 +4,22 @@
  * @version 0.0.1
  */
 /*
-Plugin Name: subscreber 2 comments
+Plugin Name: subscreber 2 comments sem plugin de e-mail smtp
 
 Description: Teste exemplos
 Author: Anselmo Paixao
 Version: 0.0.1
 */
-
+/* add in config para tisparo de email sem outros plugin
+ * define('MAIL_HOST'				, "smtp.gmail.com");
+ * define('MAIL_PORT'				, "465");
+ * define('MAIL_USER'				, "e-mail@gmail.com");
+ * define('MAIL_PASSWORD'			, "senha");
+ * define('MAIL_SMTPSECURE'		, "ssl");
+ * define('MAIL_REMETENTE'			, "");
+ * define('MAIL_DESTINATARIO'		, "");
+ */
+require_once 'semvMail.class.php';
 class KDM_Subscriber{
 	static $field_name = 'kdms_subscriber';
 	
@@ -21,6 +30,8 @@ class KDM_Subscriber{
 		add_action('wp_loaded', array('KDM_Subscriber','subscriber'));
 	}
 	function show_form(){
+		
+		
 		?>
 			<label>
 				<input type="checkbox" name="<?php echo self::$field_name;?>" value="1" />
@@ -62,7 +73,24 @@ class KDM_Subscriber{
 			if($value->comment_ID != $comment->comment_id){
 				$url = add_query_arg('unsubscribe',$value->comment_ID);
 				$messagem = str_replace('[unsubscribe]',$url,$messagem);
-				wp_mail($comment->comment_author_email, 'notofocação de comentarios', $messagem);
+// 				wp_mail($comment->comment_author_email, 'notofocação de comentarios', $messagem);
+				try {
+					ob_start ();
+					
+					// 			$avisoEmail = semvMail::sendMail ( $assunto, $corpoEmail, array($emailCad), null, null );
+					$avisoEmail = semvMail::sendMail ( 'notifocação de comentarios', $messagem, array($comment->comment_author_email), null, null );
+					
+					ob_clean ();
+					if($avisoEmail){
+						var_dump( 'Erro no disparo do email!');die;
+					}else{
+						
+					}
+				} catch ( Exception $e ) {
+					$msg = 'Erro ';
+					var_dump( $msg);die;
+					
+				}
 			}
 			
 		}
