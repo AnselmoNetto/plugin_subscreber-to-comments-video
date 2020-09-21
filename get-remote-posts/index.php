@@ -1,18 +1,15 @@
-<?php 
+<?php
 /**
- * @package teste1Netto234
  * @version 0.0.1
  */
 /*
-/*
-  Plugin Name: recuperar post remoto
-  Description: Recuperação informação remotas
-  Version: 1.0
-  Author: Netto
- * 
- */
+Plugin Name: get-remoto-post
 
-class KDM_Posts{
+Description: Teste exemplos remoto post
+Author: Anselmo Paixao
+Version: 0.0.1
+*/
+class KDM_PostRemoto{
 	
 	static  $prefix = 'grp';
 	
@@ -21,7 +18,7 @@ class KDM_Posts{
 		$opt = array(
 				'search' => 'wordpress',
 				'count'	=> 3
-				);
+		);
 		add_option(self::$prefix,'opt',$opt,false,'no');
 	}
 	function deactivation(){
@@ -29,12 +26,12 @@ class KDM_Posts{
 		delete_transient('grp');
 	}
 	function init(){
-		add_action('admin_menu', array('KDM_Posts','admin_menu'));
+		add_action('admin_menu', array('KDM_PostRemoto','admin_menu'));
 	}
 	function admin_menu(){
-		add_menu_page('Dados remotos', 'Datos remotos', 'adminstrador', 'grp-data',array('KDM_Posts','options_form'));
+		add_menu_page('Dados remotos', 'Dados remotos', 'administrator', 'grp-data',array('KDM_PostRemoto','options_form'));
 	}
-	function option_form(){
+	function options_form(){
 		$tab_cur = isset($_GET['tab'])? $_GET['tab'] : 'opt';
 		
 		if(isset($_GET['settings-update'])){
@@ -61,7 +58,7 @@ class KDM_Posts{
 			</h2>
 			<?php if($tab_cur == 'opt'){?>
 			<?php settings_errors();?>
-			<form method="post" actiona="options.php">
+			<form method="post" action="options.php">
 				<?php settings_fields('grp');?>
 				<?php do_settings_sections('grp');?>
 				<?php submit_button()?>
@@ -72,8 +69,7 @@ class KDM_Posts{
 		</div>
 		<?php
 	}
-	
-	function setting(){
+	function settings(){
 		$opt = get_option(self::$prefix,'opt');
 		if(!$opt || !is_array($opt)){
 			$opt = array(
@@ -81,19 +77,19 @@ class KDM_Posts{
 					'cout'	=>''
 			);
 		}
-		add_settings_section('grp-section', 'Opções personalizadas', array('KDM_Posts','section'), 'grp');
+		add_settings_section('grp-section', 'Opções personalizadas', array('KDM_PostRemoto','section'), 'grp');
 		add_settings_field(
-				'grp-search', 
-				'Termos de Busca', 
-				array('KDM_Posts','text'), 
+				'grp-search',
+				'Termos de Busca',
+				array('KDM_PostRemoto','text'),
 				'grp',
 				'grp-section',
 				array(
 						'name'=>'search',
 						'value'=>$opt['seach']
 				)
-		);
-		register_setting('grp', self::$prefix.'opt',array('KDM_Posts','check_count'));
+				);
+		register_setting('grp', self::$prefix.'opt',array('KDM_PostRemoto','check_count'));
 	}
 	function section(){
 		echo 'Abrir seção';
@@ -118,8 +114,8 @@ class KDM_Posts{
 		$url = sprintf(
 				'http://localhost/remote-posts.php/s=%s&count=%d',
 				$opt['search'],
-				(int)$opt['count']	
-		);
+				(int)$opt['count']
+				);
 		$r = wp_remote_get($url,array('sslverify' => false));
 		$data = json_decode($r['body']);
 		if(is_object($data) && isset($data->status)){
@@ -130,7 +126,7 @@ class KDM_Posts{
 							$d->url,
 							$d->title,
 							data('d/m/Y',strtotime($d->date))
-					);
+							);
 					array_push($posts,$post);
 				}
 			}else{
@@ -153,25 +149,15 @@ class KDM_Posts{
 	}
 	
 	function list_remote_post(){
-		KDM_Posts::show_posts();
+		KDM_PostRemoto::show_posts();
 	}
 }
 
-register_activation_hook(__FILE__, array('KDM_Posts','activation'));
-register_deactivation_hook(__FILE__, array('KDM_Posts','deactivation'));
-add_action('plugins_loaded',array('KDM_Posts','init'));
-add_action('admina_init',array('KDM_Posts','settings'));
 
-
-
-
-?>
-
-
-
-
-
-
+register_activation_hook(__FILE__, array('KDM_PostRemoto','activation'));
+register_deactivation_hook(__FILE__, array('KDM_PostRemoto','deactivation'));
+add_action('plugin_loaded',array('KDM_PostRemoto','init'));
+add_action('admin_init',array('KDM_PostRemoto','settings'));
 
 
 
